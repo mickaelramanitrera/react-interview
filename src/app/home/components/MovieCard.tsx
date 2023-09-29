@@ -4,17 +4,13 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import Image from 'next/image'
 import { FolderOpen, ThumbsUp, ThumbsDown, X } from 'lucide-react';
+import type { Movie } from '@/types';
 
 type MovieCardProps = {
-  image: string;
-  title: string,
-  category: string,
-  likes: number,
-  dislikes: number,
   onUpvote: () => void,
   onDownvote: () => void,
   onDelete: () => void
-};
+} & Movie;
 
 export const MovieCard: FC<MovieCardProps> = ({
   image,
@@ -24,7 +20,8 @@ export const MovieCard: FC<MovieCardProps> = ({
   dislikes,
   onUpvote,
   onDownvote,
-  onDelete
+  onDelete,
+  hasVoted
 }) => {
   const likesRatio = (likes / (likes + dislikes)) * 100;
   const dislikesRatio = (dislikes / (likes + dislikes)) * 100;
@@ -51,7 +48,7 @@ export const MovieCard: FC<MovieCardProps> = ({
             <p className='leading-7 font-light'>{category}</p>
           </div>
           <div className='w-full flex flex-rows items-center gap-x-2'>
-            <Toggle variant='outline' size='sm' onClick={onUpvote}><ThumbsUp className='h-5 w-5' /></Toggle>
+            <Toggle variant='outline' size='sm' onClick={onUpvote} defaultPressed={hasVoted === 'UP'}><ThumbsUp className='h-5 w-5' /></Toggle>
             <div className='flex-grow'>
               <div className='flex w-full flex-rows text-xs justify-between'>
                 <p>{likes}</p>
@@ -61,9 +58,8 @@ export const MovieCard: FC<MovieCardProps> = ({
                 <div className={`bg-green-400`} style={{ width: `${likesRatio}%` }}></div>
                 <div className={`bg-accent`} style={{ width: `${dislikesRatio}%` }}></div>
               </div>
-
             </div>
-            <Toggle variant='outline' size='sm' onClick={onDownvote}><ThumbsDown className='h-5 w-5' /></Toggle>
+            <Toggle variant='outline' size='sm' onClick={onDownvote} defaultPressed={hasVoted === 'DOWN'}><ThumbsDown className='h-5 w-5' /></Toggle>
           </div>
         </CardFooter>
       </Card>

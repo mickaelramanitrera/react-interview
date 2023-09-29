@@ -1,4 +1,5 @@
 import './globals.css'
+import { ReduxProvider } from "@/redux/provider";
 import { ThemeProvider } from "@/components/ui/theme-provider"
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -24,7 +25,9 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
         </ThemeProvider>
       </body>
     </html>
