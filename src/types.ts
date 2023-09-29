@@ -1,9 +1,18 @@
-export type Movie = {
+export type DBMovie = {
+  id: string;
   title: string;
-  image: string;
   likes: number;
   dislikes: number;
   category: string;
-  hasVoted: 'UP' | 'DOWN' | 'NONE'
+  image?: string;
 }
 
+export type Movie = {
+  image: string;
+  likes: number;
+  hasVoted: 'UP' | 'DOWN' | 'NONE'
+} & DBMovie;
+
+export type QueryParams = {
+  category: string;
+}

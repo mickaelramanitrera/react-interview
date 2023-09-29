@@ -7,12 +7,13 @@ import { FolderOpen, ThumbsUp, ThumbsDown, X } from 'lucide-react';
 import type { Movie } from '@/types';
 
 type MovieCardProps = {
-  onUpvote: () => void,
-  onDownvote: () => void,
-  onDelete: () => void
+  onUpvote: (id: string) => void,
+  onDownvote: (id: string) => void,
+  onDelete: (id: string) => void
 } & Movie;
 
 export const MovieCard: FC<MovieCardProps> = ({
+  id,
   image,
   title,
   category,
@@ -25,12 +26,13 @@ export const MovieCard: FC<MovieCardProps> = ({
 }) => {
   const likesRatio = (likes / (likes + dislikes)) * 100;
   const dislikesRatio = (dislikes / (likes + dislikes)) * 100;
+
   return (
     <div className='sm:w-full md:w-1/2 lg:w-1/3 xl:w-1/4 px-4'>
       <Card className="w-full overflow-hidden rounded-2xl px-0">
         <CardContent className='px-0 h-[200px] relative'>
           <div className='w-full absolute top bg-gradient-to-b from-black from-30% flex flex-rows justify-end'>
-            <Button size='icon' variant='ghost' className='right-0' onClick={onDelete}><X /></Button>
+            <Button size='icon' variant='ghost' className='right-0' onClick={() => onDelete(id)}><X /></Button>
           </div>
           <Image
             src={image}
@@ -48,7 +50,18 @@ export const MovieCard: FC<MovieCardProps> = ({
             <p className='leading-7 font-light'>{category}</p>
           </div>
           <div className='w-full flex flex-rows items-center gap-x-2'>
-            <Toggle variant='outline' size='sm' onClick={onUpvote} defaultPressed={hasVoted === 'UP'}><ThumbsUp className='h-5 w-5' /></Toggle>
+            <Toggle
+              variant='outline'
+              size='sm'
+              onPressedChange={(pressed) => {
+                if (pressed) {
+                  onUpvote(id);
+                }
+              }}
+              pressed={hasVoted === 'UP'}
+            >
+              <ThumbsUp className='h-5 w-5' />
+            </Toggle>
             <div className='flex-grow'>
               <div className='flex w-full flex-rows text-xs justify-between'>
                 <p>{likes}</p>
@@ -59,7 +72,18 @@ export const MovieCard: FC<MovieCardProps> = ({
                 <div className={`bg-accent`} style={{ width: `${dislikesRatio}%` }}></div>
               </div>
             </div>
-            <Toggle variant='outline' size='sm' onClick={onDownvote} defaultPressed={hasVoted === 'DOWN'}><ThumbsDown className='h-5 w-5' /></Toggle>
+            <Toggle
+              variant='outline'
+              size='sm'
+              onPressedChange={(pressed) => {
+                if (pressed) {
+                  onDownvote(id);
+                }
+              }}
+              pressed={hasVoted === 'DOWN'}
+            >
+              <ThumbsDown className='h-5 w-5' />
+            </Toggle>
           </div>
         </CardFooter>
       </Card>
