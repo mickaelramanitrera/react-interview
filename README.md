@@ -22,3 +22,9 @@ Prenez des initiatives, il y a des points bonus si
 * Il y a une attention aux détails
 
 /!\ La suppression du comportement asynchrone dans `movies.js` entraînera une annulation du test.
+
+# Get started
+
+- Faire un `npm install`
+- Lancer le serveur `npm run dev`
+- Se rendre sur localhost:3000
