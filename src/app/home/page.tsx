@@ -24,7 +24,7 @@ import { categorySelector, moviesSelector } from "@/redux/selectors/movies";
 import { MovieCard } from './components/MovieCard';
 import { CategoryMenu } from "./components/CategoryMenu";
 
-export default () => {
+const Page = () => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector((state) => state.moviesReducer?.isLoading || false);
   const categoriesWithSelectionProp = useAppSelector(categorySelector);
@@ -137,4 +137,6 @@ export default () => {
       </div>
     </>
   )
-}
+};
+
+export default Page;
