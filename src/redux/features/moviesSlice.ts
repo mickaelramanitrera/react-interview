@@ -27,6 +27,7 @@ export const movies = createSlice({
   reducers: {
     reset: () => initialState,
     addSelectedCategory: (state, action: PayloadAction<string>) => {
+      state.currentPage = 1;
       const categoryToAdd = action.payload;
       const categoryToAddIndex = state.selectedCategories.findIndex((category) => category.toLowerCase() === categoryToAdd.toLowerCase());
 
@@ -50,6 +51,7 @@ export const movies = createSlice({
       state.total = countFilteredMovies(state);
     },
     removeSelectedCategory: (state, action: PayloadAction<string>) => {
+      state.currentPage = 1;
       const newSelectedCategories = state.selectedCategories.filter((category) => {
         const isToRemove = category.toLowerCase() === action.payload.toLowerCase();
         return !isToRemove;
