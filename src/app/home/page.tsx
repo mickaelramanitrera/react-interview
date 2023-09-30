@@ -1,9 +1,24 @@
 'use client'
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { deleteMovie, upvoteMovie, downvoteMovie } from "@/redux/features/moviesSlice";
+import {
+  deleteMovie,
+  upvoteMovie,
+  downvoteMovie,
+  updateRowPerPage,
+  goToPreviousPage,
+  goToNextPage
+} from "@/redux/features/moviesSlice";
 import { fetchMovies } from '@/redux/thunks/moviesThunks';
 import { categorySelector, moviesSelector } from "@/redux/selectors/movies";
 import { MovieCard } from './components/MovieCard';
@@ -14,6 +29,13 @@ export default () => {
   const isLoading = useAppSelector((state) => state.moviesReducer?.isLoading || false);
   const categoriesWithSelectionProp = useAppSelector(categorySelector);
   const moviesListFiltered = useAppSelector(moviesSelector);
+  const { currentPage, pageSize, total } = useAppSelector(
+    (state) => ({
+      currentPage: state.moviesReducer.currentPage,
+      pageSize: state.moviesReducer.pageSize,
+      total: state.moviesReducer.total
+    })
+  );
 
   const handleOnDelete = (id: string) => {
     dispatch(deleteMovie(id))
@@ -25,6 +47,18 @@ export default () => {
 
   const handleDownvote = (id: string) => {
     dispatch(downvoteMovie(id))
+  }
+
+  const handlePageSizeChange = (value: string) => {
+    dispatch(updateRowPerPage(parseInt(value, 10)));
+  }
+
+  const handleGoToNextPage = () => {
+    dispatch(goToNextPage());
+  }
+
+  const handleGoToPreviousPage = () => {
+    dispatch(goToPreviousPage());
   }
 
   useEffect(() => {
@@ -71,6 +105,35 @@ export default () => {
             }
           })
         }
+
+        <div className='mt-6 flex flex-rows items-center justify-center w-full gap-x-4'>
+          <div className="flex items-center space-x-2">
+            <p className="text-sm font-medium">Rows per page</p>
+            <Select
+              value={`${pageSize}`}
+              onValueChange={handlePageSizeChange}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder={'4'} />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {[4, 8, 12].map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button variant="outline" size="icon" onClick={handleGoToPreviousPage}>
+            <ChevronLeft />
+          </Button>
+          <p>Page {currentPage} of {Math.ceil(total / pageSize)}</p>
+          <Button variant="outline" size="icon" onClick={handleGoToNextPage}>
+            <ChevronRight />
+          </Button>
+
+        </div>
       </div>
     </>
   )

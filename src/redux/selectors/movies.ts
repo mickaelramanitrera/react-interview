@@ -14,6 +14,25 @@ export const selectedCategoriesSelector = createDraftSafeSelector(
   (selectedCategoriesState) => selectedCategoriesState
 );
 
+const paginate = (movies: RootState['moviesReducer']['movies'], state: RootState['moviesReducer']) => {
+  const paginatedMovies: RootState['moviesReducer']['movies'] = {};
+  const categories = Object.keys(movies);
+  const flattenMovies = Object.values(movies).flat();
+  const flattenPaginatedMovies = flattenMovies.slice((state.currentPage - 1) * state.pageSize, state.currentPage * state.pageSize)
+  categories.forEach((category) => {
+    paginatedMovies[category] = [];
+  });
+
+
+  flattenPaginatedMovies.forEach((paginatedMovie) => {
+    const paginatedMovieCategory = paginatedMovie.category;
+    paginatedMovies[paginatedMovieCategory].push(paginatedMovie);
+  });
+
+
+  return paginatedMovies;
+}
+
 export const moviesSelector = createDraftSafeSelector(
   (state: RootState) => state?.moviesReducer,
   (moviesReducer) => {
@@ -21,7 +40,7 @@ export const moviesSelector = createDraftSafeSelector(
     const showAll = selectedCategories.includes('Tous');
 
     if (showAll) {
-      return moviesReducer?.movies;
+      return paginate(moviesReducer?.movies, moviesReducer);
     }
 
     const filteredMovies: RootState['moviesReducer']['movies'] = {};
@@ -30,7 +49,8 @@ export const moviesSelector = createDraftSafeSelector(
       (filteredMovies as any)[category] = moviesReducer.movies[category];
     });
 
-    return filteredMovies;
+
+    return paginate(filteredMovies, moviesReducer);
   }
 );
 

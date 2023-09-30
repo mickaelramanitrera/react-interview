@@ -7,12 +7,18 @@ type MoviesState = {
   isLoading: boolean;
   movies: Record<string, Movie[]>;
   selectedCategories: string[];
+  currentPage: number;
+  pageSize: number;
+  total: number;
 };
 
 const initialState = {
   isLoading: false,
   selectedCategories: ['Tous'],
-  movies: {}
+  movies: {},
+  currentPage: 1,
+  pageSize: 4,
+  total: 0
 } as MoviesState;
 
 export const movies = createSlice({
@@ -41,6 +47,7 @@ export const movies = createSlice({
       }
 
       state.selectedCategories = categoriesToPersist;
+      state.total = countFilteredMovies(state);
     },
     removeSelectedCategory: (state, action: PayloadAction<string>) => {
       const newSelectedCategories = state.selectedCategories.filter((category) => {
@@ -54,6 +61,7 @@ export const movies = createSlice({
       }
 
       state.selectedCategories = newSelectedCategories;
+      state.total = countFilteredMovies(state);
     },
     deleteMovie: (state, action: PayloadAction<string>) => {
       const categories = Object.keys(state.movies);
@@ -125,8 +133,28 @@ export const movies = createSlice({
       })
 
       state.movies = newMoviesState;
-    }
+    },
+    updateRowPerPage: (state, action: PayloadAction<number>) => {
+      state.pageSize = action.payload;
+      state.currentPage = 1;
+      state.total = countFilteredMovies(state);
+    },
+    goToNextPage: (state) => {
+      const maxPage = Math.ceil(state.total / state.pageSize);
+      if (state.currentPage === maxPage) {
+        return;
+      }
 
+      state.currentPage++;
+    },
+    goToPreviousPage: (state) => {
+      const lowestPage = 1;
+      if (state.currentPage === lowestPage) {
+        return;
+      }
+
+      state.currentPage--;
+    }
   },
   extraReducers: (builder) => {
     // Add reducers for additional action types here, and handle loading state as needed
@@ -135,9 +163,9 @@ export const movies = createSlice({
     });
 
     builder.addCase(fetchMovies.fulfilled, (state, action) => {
-      state.isLoading = false;
       const fetchedMovies: DBMovie[] = action.payload;
       const mappedMovies: RootState['moviesReducer']['movies'] = {};
+      state.total = fetchedMovies.length;
 
       fetchedMovies.forEach((movie) => {
         const augmentedMovie = {
@@ -154,6 +182,7 @@ export const movies = createSlice({
       })
 
       state.movies = mappedMovies;
+      state.isLoading = false;
     })
   },
 });
@@ -164,6 +193,26 @@ export const {
   removeSelectedCategory,
   deleteMovie,
   upvoteMovie,
-  downvoteMovie
+  downvoteMovie,
+  updateRowPerPage,
+  goToNextPage,
+  goToPreviousPage
 } = movies.actions;
 export default movies.reducer;
+
+const countFilteredMovies = (state: RootState['moviesReducer']) => {
+  const selectedCategories = state.selectedCategories;
+  const showAll = selectedCategories.includes('Tous');
+
+  if (showAll) {
+    return Object.values(state.movies).flat().length;
+  }
+
+  const filteredMovies: RootState['moviesReducer']['movies'] = {};
+
+  selectedCategories.forEach((category) => {
+    (filteredMovies as any)[category] = state.movies[category];
+  });
+
+  return Object.values(filteredMovies).flat().length;
+}
